@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מערכת ניהול מוסדות</title>
+    
+    <!-- ספריות חיצוניות -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- סגנונות -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+    <style>
+        :root {
+            --primary-color: #6b5b95;
+            --secondary-color: #feb236;
+            --success-color: #82b74b;
+            --error-color: #c94c4c;
+            --background-light: #f5f5f5;
+            --text-dark: #333;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--background-light);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: var(--background-light);
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            margin: 20px;
+        }
+
+        .dashboard-container {
+            display: none;
+            width: 100%;
+            min-height: 100vh;
+            padding-right: 280px; /* רוחב התפריט */
+        }
+
+        .main-content {
+            width: 100%;
+            padding: 30px;
+            margin-right: 280px; /* רוחב התפריט */
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            background: var(--background-light);
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-color) 0%, #4a4169 100%);
+            color: white;
+            width: 280px;
+            position: fixed;
+            height: 100%;
+            right: 0;
+            top: 0;
+            padding: 20px 0;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .page-content {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            width: calc(100% - 300px); /* רוחב המסך פחות רוחב התפריט ומרווחים */
+            margin-right: 20px;
+        }
+
+        .system-logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+            object-fit: contain;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .input-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            direction: rtl;
+        }
+
+        input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(107, 91, 149, 0.1);
+        }
+
+        .login-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            background: #5a4d7a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 12px 25px;
+            display: block;
+            transition: all 0.3s ease;
+            margin: 5px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+
+        .nav-link i {
+            margin-left: 10px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .logo-container {
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo-container img {
+            width: 100px;
+            height: auto;
+            margin-bottom: 10px;
+            border-radius: 10px;
+        }
+
+        .logo-container h4 {
+            margin: 0;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .stat-card i {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card h3 {
+            margin: 10px 0;
+            font-size: 1.2em;
+        }
+
+        .stat-card p {
+            font-size: 1.5em;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+            padding: 20px;
+        }
+
+        .donation-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .donation-form {
+            margin-top: 20px;
+        }
+
+        .payment-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .payment-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            font-size: 1.1em;
+        }
+
+        .bank-details {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .bank-details h4 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .bank-details p {
+            margin-bottom: 10px;
+        }
+
+        .bank-details i {
+            width: 25px;
+            color: var(--primary-color);
+        }
+
+        .activity-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .activity-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        .activity-card ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .activity-card ul li {
+            margin-bottom: 10px;
+            padding-right: 20px;
+            position: relative;
+        }
+
+        .activity-card ul li:before {
+            content: "•";
+            color: var(--primary-color);
+            position: absolute;
+            right: 0;
+        }
+
+        .activities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .stat-card i {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card h3 {
+            margin: 10px 0;
+            font-size: 1.2em;
+        }
+
+        .stat-card p {
+            font-size: 1.5em;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+            padding: 20px;
+        }
+
+        .donation-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .donation-form {
+            margin-top: 20px;
+        }
+
+        .payment-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .payment-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            font-size: 1.1em;
+        }
+
+        .bank-details {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .bank-details h4 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .bank-details p {
+            margin-bottom: 10px;
+        }
+
+        .bank-details i {
+            width: 25px;
+            color: var(--primary-color);
+        }
+
+        .welcome-text {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .login-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group-text {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px 0 0 8px;
+        }
+
+        .form-control {
+            border: 2px solid #eee;
+            border-radius: 0 8px 8px 0;
+            padding: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(107, 91, 149, 0.1);
+        }
+
+        .forgot-password {
+            text-align: center;
+        }
+
+        .forgot-password a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .forgot-password a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+
+        .user-info {
+            padding: 15px;
+            margin: 10px 15px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-avatar i {
+            font-size: 30px;
+            color: white;
+        }
+
+        .user-details {
+            flex-grow: 1;
+        }
+
+        .user-name {
+            display: block;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .user-role {
+            display: block;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 5px 15px;
+        }
+
+        .nav-link i {
+            margin-left: 12px;
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            transform: translateX(-5px);
+        }
+
+        .nav-link.logout {
+            margin-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 20px;
+            color: #ff6b6b;
+        }
+
+        .nav-link.logout:hover {
+            background: rgba(255,107,107,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-page">
+        <div class="login-container">
+            <div class="text-center mb-4">
+                <img src="images/‏‏__לוגו מוסדות - עותק.png" alt="לוגו" class="system-logo">
+                <h2 class="welcome-text">ברוכים הבאים</h2>
+                <p class="login-subtitle">מערכת ניהול מוסדות צדקה</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">שם משתמש</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        <input type="text" id="username" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="password">סיסמה</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        <input type="password" id="password" class="form-control" required>
+                    </div>
+                </div>
+                <button type="button" class="login-btn" onclick="login()">
+                    <i class="fas fa-sign-in-alt ml-2"></i>
+                    התחבר למערכת
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="sidebar" id="sidebar">
+            <div class="logo-container">
+                <img src="images/‏‏__לוגו מוסדות - עותק.png" alt="לוגו המערכת">
+                <h4>מוסדות צדקה</h4>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-details">
+                    <span class="user-name" id="currentUserName">שם משתמש</span>
+                    <span class="user-role">מנהל מערכת</span>
+                </div>
+            </div>
+            <div class="nav flex-column">
+                <a class="nav-link active" href="#" data-page="dashboard">
+                    <i class="fas fa-home"></i>
+                    דף הבית
+                </a>
+                <a class="nav-link" href="#" data-page="institutions">
+                    <i class="fas fa-building"></i>
+                    מוסדות בארץ ובעולם
+                </a>
+                <a class="nav-link" href="#" data-page="activities">
+                    <i class="fas fa-book-reader"></i>
+                    פעילות המוסדות
+                </a>
+                <a class="nav-link" href="#" data-page="donations">
+                    <i class="fas fa-hand-holding-heart"></i>
+                    תרומות והנצחות
+                </a>
+                <a class="nav-link" href="#" data-page="reports">
+                    <i class="fas fa-chart-bar"></i>
+                    דוחות ונתונים
+                </a>
+                <a class="nav-link" href="#" data-page="users">
+                    <i class="fas fa-users"></i>
+                    ניהול משתמשים
+                </a>
+                <a class="nav-link" href="#" data-page="settings">
+                    <i class="fas fa-cog"></i>
+                    הגדרות מערכת
+                </a>
+                <a class="nav-link logout" href="#" onclick="handleLogout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    התנתק
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-9 col-lg-10">
+                <div id="main-content" class="main-content no-sidebar">
+                    <!-- תוכן דף הבית -->
+                    <div id="dashboard" class="page-content">
+                        <h2>ברוכים הבאים למערכת ניהול מוסדות הצדקה</h2>
+                        <div class="dashboard-stats">
+                            <div class="stat-card">
+                                <i class="fas fa-users"></i>
+                                <h3>מספר הלומדים</h3>
+                                <p>175+</p>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-book"></i>
+                                <h3>מסגרות לימוד</h3>
+                                <p>8</p>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-shekel-sign"></i>
+                                <h3>עלות חודשית</h3>
+                                <p>9,000+ ש"ח</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- תוכן דף המוסדות -->
+                    <div id="institutions" class="page-content" style="display: none;">
+                        <h2>מוסדות בארץ ובעולם</h2>
+                        <div class="institutions-grid">
+                            <!-- תוכן המוסדות יוכנס כאן דינמית -->
+                        </div>
+                    </div>
+
+                    <!-- תוכן דף הפעילויות -->
+                    <div id="activities" class="page-content" style="display: none;">
+                        <h2>פעילות המוסדות</h2>
+                        <div class="activities-grid">
+                            <div class="activity-card">
+                                <h3>חבורת הלכה</h3>
+                                <ul>
+                                    <li>כ-25 בחורים הלומדים פוסקים ולומדים הלכות</li>
+                                    <li>מתקיימת פ"א בשבוע והלומדים מושכים תלמידים נוספים</li>
+                                    <li>המתקיימת ע"פ התפתחות של הלומדים עם שינון סדרי בורר</li>
+                                    <li>עלות הוצאות חודשיות: 300 ש"ח</li>
+                                </ul>
+                            </div>
+
+                            <div class="activity-card">
+                                <h3>חפץ חיים</h3>
+                                <ul>
+                                    <li>סידור לימוד מיוחד לאחר תפילת שחרית ללומדים</li>
+                                    <li>כיבוד על לימוד הלכות בחורים הלימוד ללמוד</li>
+                                    <li>שעה למוד שמירת חיים עד יום ב' דרך המסכת</li>
+                                    <li>שיעורים עד כמה ב' שעות</li>
+                                    <li>עלות הוצאות חודש: 250 ש"ח</li>
+                                </ul>
+                            </div>
+
+                            <div class="activity-card">
+                                <h3>מקדשי שבועי</h3>
+                                <ul>
+                                    <li>לימוד הלכה לכל הלכה שבת מתוך סידור לחות את</li>
+                                    <li>ימי שישי ולהביט לספר מתוך על לימוד "מוקצה"</li>
+                                    <li>שבועי - בכל שבוע מתקיים סדרי לימוד את</li>
+                                    <li>כזכות הכנה - והכנסת הלכה מיוחדת ללומדים</li>
+                                    <li>עלות הוצאות חודש: 180 ש"ח</li>
+                                </ul>
+                            </div>
+
+                            <div class="activity-card">
+                                <h3>משכני אחריך</h3>
+                                <ul>
+                                    <li>סדר זיכוי אלפא מקדושת בכל ימי האזכרה של צדיקים</li>
+                                    <li>אלול והתק' וטהרה ע"פ התפתחות של הלומדים עם שינון סדרי בורר</li>
+                                    <li>שמירת המצות מתוך חידושי מוהר"ן כ-21 לשנות על מיוחדות</li>
+                                    <li>מוסר עם כיבוד ולימוד המצות וגלות מחשבה ללומדים</li>
+                                    <li>עלות הוצאות חודש: 6,000 ש"ח</li>
+                                </ul>
+                            </div>
+
+                            <div class="activity-card">
+                                <h3>נעשה ונשמע</h3>
+                                <ul>
+                                    <li>סדר לימוד מיוחד בימים טובים את סדר הזמן</li>
+                                    <li>לאחר הלילה ובקידת כללי הזמנים בימים טובים ובחורים</li>
+                                    <li>מכבד הדברים ויו"ט ולעשות עוד ועוד דברים המשך</li>
+                                    <li>על פי הזדמניות מיוחדת</li>
+                                    <li>עלות הוצאות חודש: 450 ש"ח</li>
+                                </ul>
+                            </div>
+
+                            <div class="activity-card">
+                                <h3>מחיל אל חיל</h3>
+                                <ul>
+                                    <li>א-ל כולל עליה לאחר תפילת יורה דעה הגדול והבריא</li>
+                                    <li>משתכים כ-20 בחורי מוסד של חיל אל חיל בהכנת בחורים</li>
+                                    <li>הלומדים בפרט וללמוד אל הכלל ולעשות בכל יום תשובה משני</li>
+                                    <li>סוד באות יום וסדרים</li>
+                                    <li>עלות הוצאות חודש: 1,000 ש"ח</li>
+                                </ul>
+                            </div>
+
+                            <div class="activity-card">
+                                <h3>כי הם חיינו</h3>
+                                <ul>
+                                    <li>סדר לימוד מיוחד לאחר סידור בחורי רב החסד</li>
+                                    <li>כיבוד על לימוד הלכות בחורים הלימוד ללמוד</li>
+                                    <li>שעה למוד שמירת חיים עד יום ב' דרך המסכת</li>
+                                    <li>שיעורים עד כמה ב' שעות</li>
+                                    <li>עלות הוצאות חודש: 250 ש"ח</li>
+                                </ul>
+                            </div>
+
+                            <div class="activity-card">
+                                <h3>מלווה מלכה</h3>
+                                <ul>
+                                    <li>מיד לאחר הפסקה קטנה בצאת השבת חוזרים</li>
+                                    <li>כ-40 בחורים לשיעור חזק עם כל הברק"ן במשך שעה וחצי</li>
+                                    <li>ולאח"כ מגילה ללומדים ומיני מפסקים לכלל המשתתפים</li>
+                                    <li>עלות הוצאות הסדר: כ-850 ש"ח</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- תוכן דף התרומות -->
+                    <div id="donations" class="page-content" style="display: none;">
+                        <h2>תרומות והנצחות</h2>
+                        <div class="donation-content">
+                            <div class="row">
+                                <div class="col-md-8 mx-auto">
+                                    <div class="donation-card">
+                                        <h3>תרומה מקוונת</h3>
+                                        <form id="donationForm" class="donation-form" onsubmit="submitToNedarim(event)">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="sum" class="form-label">סכום התרומה</label>
+                                                        <input type="number" class="form-control" id="sum" name="sum" min="1" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="currency" class="form-label">מטבע</label>
+                                                        <select class="form-select" id="currency" name="currency">
+                                                            <option value="1">₪</option>
+                                                            <option value="2">$</option>
+                                                            <option value="3">€</option>
+                                                            <option value="4">£</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="payments" class="form-label">מספר תשלומים</label>
+                                                        <select class="form-select" id="payments" name="payments">
+                                                            <option value="1">תשלום אחד</option>
+                                                            <option value="2">2 תשלומים</option>
+                                                            <option value="3">3 תשלומים</option>
+                                                            <option value="6">6 תשלומים</option>
+                                                            <option value="12">12 תשלומים</option>
+                                                            <option value="24">24 תשלומים</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="paymentType" class="form-label">אמצעי תשלום</label>
+                                                        <select class="form-select" id="paymentType" name="paymentType">
+                                                            <option value="1">כרטיס אשראי</option>
+                                                            <option value="2">הוראת קבע בכרטיס אשראי</option>
+                                                            <option value="3">הוראת קבע בבנק</option>
+                                                            <option value="4">העברה בנקאית</option>
+                                                            <option value="5">ביט</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="fname" class="form-label">שם פרטי</label>
+                                                        <input type="text" class="form-control" id="fname" name="fname" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="lname" class="form-label">שם משפחה</label>
+                                                        <input type="text" class="form-control" id="lname" name="lname" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="phone" class="form-label">טלפון</label>
+                                                        <input type="tel" class="form-control" id="phone" name="phone" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="email" class="form-label">דוא"ל</label>
+                                                        <input type="email" class="form-control" id="email" name="email">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="dedication" class="form-label">הקדשה</label>
+                                                        <textarea class="form-control" id="dedication" name="dedication" rows="2"></textarea>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="campaign" class="form-label">מטרת התרומה</label>
+                                                        <select class="form-select" id="campaign" name="campaign">
+                                                            <option value="תרומה כללית">תרומה כללית</option>
+                                                            <option value="הנצחה">הנצחה</option>
+                                                            <option value="מתנה">מתנה</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="street" class="form-label">רחוב ומספר</label>
+                                                        <input type="text" class="form-control" id="street" name="street">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="city" class="form-label">עיר</label>
+                                                        <input type="text" class="form-control" id="city" name="city">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="horaatKeva" style="display: none;">
+                                                <div class="mb-3">
+                                                    <label for="hkType" class="form-label">תדירות החיוב</label>
+                                                    <select class="form-select" id="hkType" name="hkType">
+                                                        <option value="1">חודשי</option>
+                                                        <option value="3">כל 3 חודשים</option>
+                                                        <option value="6">חצי שנתי</option>
+                                                        <option value="12">שנתי</option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="hkDay" class="form-label">יום בחודש לחיוב</label>
+                                                    <select class="form-select" id="hkDay" name="hkDay">
+                                                        <option value="1">1</option>
+                                                        <option value="10">10</option>
+                                                        <option value="15">15</option>
+                                                        <option value="25">25</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="text-center mt-4">
+                                                <button type="submit" class="btn btn-lg btn-success">
+                                                    <i class="fas fa-heart"></i> המשך לתשלום מאובטח
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- דף יצירת קשר -->
+                    <div id="contact" class="page-content" style="display: none;">
+                        <h2>יצירת קשר</h2>
+                        <div class="contact-form">
+                            <form id="contactForm">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">שם מלא</label>
+                                    <input type="text" class="form-control" id="name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">טלפון</label>
+                                    <input type="tel" class="form-control" id="phone" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="message" class="form-label">הודעה</label>
+                                    <textarea class="form-control" id="message" rows="3" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">שלח</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- דף דוחות -->
+                    <div id="reports" class="page-content" style="display: none;">
+                        <h2>דוחות ונתונים</h2>
+                        <div class="reports-container">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div class="report-card">
+                                        <h3><i class="fas fa-chart-line"></i> דוח תרומות חודשי</h3>
+                                        <p>צפייה בנתוני התרומות לפי חודשים</p>
+                                        <button class="btn btn-primary" onclick="generateReport('donations')">הפק דוח</button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div class="report-card">
+                                        <h3><i class="fas fa-users"></i> דוח משתתפים</h3>
+                                        <p>סיכום משתתפים בפעילויות השונות</p>
+                                        <button class="btn btn-primary" onclick="generateReport('participants')">הפק דוח</button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div class="report-card">
+                                        <h3><i class="fas fa-money-bill-wave"></i> דוח הוצאות</h3>
+                                        <p>פירוט הוצאות המוסדות</p>
+                                        <button class="btn btn-primary" onclick="generateReport('expenses')">הפק דוח</button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div class="report-card">
+                                        <h3><i class="fas fa-calendar-alt"></i> דוח פעילויות</h3>
+                                        <p>סיכום פעילויות המוסדות</p>
+                                        <button class="btn btn-primary" onclick="generateReport('activities')">הפק דוח</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- דף ניהול משתמשים -->
+                    <div id="users" class="page-content" style="display: none;">
+                        <h2>ניהול משתמשים</h2>
+                        <div class="users-container">
+                            <div class="action-buttons mb-4">
+                                <button class="btn btn-primary" onclick="showAddUserModal()">
+                                    <i class="fas fa-user-plus"></i>
+                                    הוסף משתמש חדש
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>שם משתמש</th>
+                                            <th>תפקיד</th>
+                                            <th>דוא"ל</th>
+                                            <th>סטטוס</th>
+                                            <th>פעולות</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>admin</td>
+                                            <td>מנהל מערכת</td>
+                                            <td>admin@example.com</td>
+                                            <td><span class="badge bg-success">פעיל</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-info" onclick="editUser('admin')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="deleteUser('admin')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>משה</td>
+                                            <td>מנהל</td>
+                                            <td>moshe@example.com</td>
+                                            <td><span class="badge bg-success">פעיל</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-info" onclick="editUser('משה')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="deleteUser('משה')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- דף הגדרות -->
+                    <div id="settings" class="page-content" style="display: none;">
+                        <h2>הגדרות מערכת</h2>
+                        <div class="settings-container">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="settings-card">
+                                        <h3>הגדרות כלליות</h3>
+                                        <form id="generalSettingsForm">
+                                            <div class="mb-3">
+                                                <label for="systemName" class="form-label">שם המערכת</label>
+                                                <input type="text" class="form-control" id="systemName" value="מערכת ניהול מוסדות צדקה">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="language" class="form-label">שפת ממשק</label>
+                                                <select class="form-select" id="language">
+                                                    <option value="he" selected>עברית</option>
+                                                    <option value="en">English</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="timezone" class="form-label">אזור זמן</label>
+                                                <select class="form-select" id="timezone">
+                                                    <option value="Asia/Jerusalem" selected>ישראל (UTC+2)</option>
+                                                </select>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">שמור הגדרות</button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="settings-card">
+                                        <h3>הגדרות התראות</h3>
+                                        <form id="notificationSettingsForm">
+                                            <div class="mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                                                    <label class="form-check-label" for="emailNotifications">התראות במייל</label>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="smsNotifications">
+                                                    <label class="form-check-label" for="smsNotifications">התראות SMS</label>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="notificationFrequency" class="form-label">תדירות התראות</label>
+                                                <select class="form-select" id="notificationFrequency">
+                                                    <option value="immediately">מיידי</option>
+                                                    <option value="daily">יומי</option>
+                                                    <option value="weekly">שבועי</option>
+                                                </select>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">שמור הגדרות</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <script>
+        // משתנים גלובליים
+        let currentUser = null;
+        let institutions = [
+            {
+                id: 1,
+                name: "ישיבת פוניבז",
+                activities: [
+                    { id: 1, name: "כולל אברכים", description: "לימוד תורה לאברכים", budget: 5000 },
+                    { id: 2, name: "שיעורי ערב", description: "שיעורי תורה בערב", budget: 2000 }
+                ]
+            },
+            {
+                id: 2,
+                name: "חפץ חיים",
+                activities: [
+                    { id: 3, name: "סידור לימוד", description: "לימוד מיוחד לאחר תפילת שחרית", budget: 3000 },
+                    { id: 4, name: "כיבוד", description: "כיבוד על לימוד הלכות", budget: 1000 }
+                ]
+            }
+        ];
+
+        let donations = [
+            { id: 1, institution: "ישיבת פוניבז", amount: 1000, date: "2024-01-15", donor: "ישראל כהן" },
+            { id: 2, institution: "חפץ חיים", amount: 500, date: "2024-01-16", donor: "משה לוי" }
+        ];
+
+        let expenses = [
+            { id: 1, institution: "ישיבת פוניבז", amount: 800, date: "2024-01-14", description: "ציוד לימוד" },
+            { id: 2, institution: "חפץ חיים", amount: 400, date: "2024-01-15", description: "כיבוד" }
+        ];
+
+        // פונקציות התחברות
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if ((username === 'admin' && password === 'admin') || 
+                (username === 'משה' && password === '1234')) {
+                currentUser = { username, role: username === 'admin' ? 'מנהל מערכת' : 'מנהל' };
+                
+                // הסתרת דף ההתחברות והצגת התפריט
+                document.querySelector('.login-page').style.display = 'none';
+                document.querySelector('.dashboard-container').style.display = 'block';
+                document.getElementById('sidebar').style.display = 'block';
+                
+                // עדכון פרטי משתמש
+                updateUserInfo();
+                
+                // שמירת מצב התחברות
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // מעבר לדף הבית
+                showPage('dashboard');
+            } else {
+                alert('שם משתמש או סיסמה שגויים');
+            }
+        }
+
+        // עדכון פרטי משתמש
+        function updateUserInfo() {
+            if (currentUser) {
+                const userNameElement = document.getElementById('currentUserName');
+                const userRoleElement = document.querySelector('.user-role');
+                
+                if (userNameElement) {
+                    userNameElement.textContent = currentUser.username;
+                }
+                if (userRoleElement) {
+                    userRoleElement.textContent = currentUser.role;
+                }
+            }
+        }
+
+        // בדיקת התחברות בטעינת הדף
+        document.addEventListener('DOMContentLoaded', function() {
+            // הוספת מאזיני לחיצה לכל כפתורי התפריט
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const pageId = this.getAttribute('data-page');
+                    if (pageId) {
+                        showPage(pageId);
+                        
+                        // הסרת הסימון הפעיל מכל הקישורים
+                        document.querySelectorAll('.nav-link').forEach(item => {
+                            item.classList.remove('active');
+                        });
+                        
+                        // הוספת סימון פעיל לקישור הנוכחי
+                        this.classList.add('active');
+                    }
+                });
+            });
+
+            // בדיקה אם המשתמש כבר מחובר
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            const savedUser = localStorage.getItem('currentUser');
+            
+            if (isLoggedIn && savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.querySelector('.login-page').style.display = 'none';
+                document.querySelector('.dashboard-container').style.display = 'block';
+                document.getElementById('sidebar').style.display = 'block';
+                updateUserInfo();
+                showPage('dashboard');
+            }
+        });
+
+        // ניהול דפים
+        function showPage(pageId) {
+            // הסתרת כל הדפים
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.style.display = 'none';
+            });
+            
+            // הצגת הדף הנבחר
+            const selectedPage = document.getElementById(pageId);
+            if (selectedPage) {
+                selectedPage.style.display = 'block';
+            }
+        }
+
+        // פונקציית התנתקות
+        function handleLogout() {
+            // ניקוי נתוני המשתמש
+            currentUser = null;
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('currentUser');
+            
+            // הסתרת התפריט והתוכן
+            document.querySelector('.dashboard-container').style.display = 'none';
+            
+            // הצגת דף ההתחברות
+            document.querySelector('.login-page').style.display = 'flex';
+            
+            // ניקוי שדות טופס התחברות
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+
+            // ניקוי תוכן הדפים
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.style.display = 'none';
+            });
+        }
+
+        // ניהול פעילויות
+        function addActivity(institutionId) {
+            const institution = institutions.find(i => i.id === institutionId);
+            if (!institution) return;
+
+            const name = prompt('שם הפעילות:');
+            if (!name) return;
+
+            const description = prompt('תיאור הפעילות:');
+            const budget = parseInt(prompt('תקציב:'));
+
+            institution.activities.push({
+                id: Date.now(),
+                name,
+                description,
+                budget
+            });
+
+            updateActivitiesList();
+        }
+
+        function editActivity(institutionId, activityId) {
+            const institution = institutions.find(i => i.id === institutionId);
+            if (!institution) return;
+
+            const activity = institution.activities.find(a => a.id === activityId);
+            if (!activity) return;
+
+            const name = prompt('שם הפעילות:', activity.name);
+            if (!name) return;
+
+            const description = prompt('תיאור הפעילות:', activity.description);
+            const budget = parseInt(prompt('תקציב:', activity.budget));
+
+            activity.name = name;
+            activity.description = description;
+            activity.budget = budget;
+
+            updateActivitiesList();
+        }
+
+        function deleteActivity(institutionId, activityId) {
+            const institution = institutions.find(i => i.id === institutionId);
+            if (!institution) return;
+
+            if (!confirm('האם אתה בטוח שברצונך למחוק את הפעילות?')) return;
+
+            institution.activities = institution.activities.filter(a => a.id !== activityId);
+            updateActivitiesList();
+        }
+
+        function updateActivitiesList() {
+            const container = document.getElementById('institutionsContainer');
+            if (!container) return;
+
+            container.innerHTML = institutions.map(institution => `
+                <div class="activity-card">
+                    <h3>${institution.name}</h3>
+                    <button class="btn btn-primary btn-sm" onclick="addActivity(${institution.id})">
+                        <i class="fas fa-plus"></i> הוסף פעילות
+                    </button>
+                    <ul>
+                        ${institution.activities.map(activity => `
+                            <li>
+                                ${activity.name} - ${activity.description}
+                                <br>תקציב: ${activity.budget} ש"ח
+                                <div class="activity-actions">
+                                    <button class="btn btn-info btn-sm" onclick="editActivity(${institution.id}, ${activity.id})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteActivity(${institution.id}, ${activity.id})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `).join('');
+        }
+
+        // ניהול דוחות
+        function generateReport(type) {
+            let reportContent = '';
+            const reportContainer = document.getElementById('reportContainer');
+            
+            switch(type) {
+                case 'donations':
+                    reportContent = `
+                        <h3>דוח תרומות</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>מוסד</th>
+                                    <th>סכום</th>
+                                    <th>תאריך</th>
+                                    <th>תורם</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${donations.map(d => `
+                                    <tr>
+                                        <td>${d.institution}</td>
+                                        <td>${d.amount} ש"ח</td>
+                                        <td>${new Date(d.date).toLocaleDateString('he-IL')}</td>
+                                        <td>${d.donor}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                    break;
+
+                case 'expenses':
+                    reportContent = `
+                        <h3>דוח הוצאות</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>מוסד</th>
+                                    <th>סכום</th>
+                                    <th>תאריך</th>
+                                    <th>תיאור</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${expenses.map(e => `
+                                    <tr>
+                                        <td>${e.institution}</td>
+                                        <td>${e.amount} ש"ח</td>
+                                        <td>${new Date(e.date).toLocaleDateString('he-IL')}</td>
+                                        <td>${e.description}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                    break;
+
+                case 'activities':
+                    reportContent = `
+                        <h3>דוח פעילויות</h3>
+                        ${institutions.map(inst => `
+                            <div class="institution-report">
+                                <h4>${inst.name}</h4>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>פעילות</th>
+                                            <th>תיאור</th>
+                                            <th>תקציב</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${inst.activities.map(act => `
+                                            <tr>
+                                                <td>${act.name}</td>
+                                                <td>${act.description}</td>
+                                                <td>${act.budget} ש"ח</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        `).join('')}
+                    `;
+                    break;
+            }
+
+            if (reportContainer) {
+                reportContainer.innerHTML = reportContent;
+            }
+        }
+
+        // ניהול משתמשים
+        function showAddUserModal() {
+            const username = prompt('שם משתמש:');
+            if (!username) return;
+
+            const role = prompt('תפקיד:');
+            const email = prompt('דוא"ל:');
+
+            const usersTable = document.querySelector('#users table tbody');
+            if (usersTable) {
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${username}</td>
+                    <td>${role}</td>
+                    <td>${email}</td>
+                    <td><span class="badge bg-success">פעיל</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-info" onclick="editUser('${username}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteUser('${username}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                usersTable.appendChild(newRow);
+            }
+        }
+
+        function editUser(username) {
+            const userRow = document.querySelector(`#users table tbody tr td:first-child`);
+            if (!userRow || userRow.textContent !== username) return;
+
+            const newRole = prompt('תפקיד חדש:');
+            if (!newRole) return;
+
+            const row = userRow.parentElement;
+            if (row) {
+                row.children[1].textContent = newRole;
+            }
+        }
+
+        function deleteUser(username) {
+            if (!confirm(`האם אתה בטוח שברצונך למחוק את המשתמש ${username}?`)) return;
+
+            const userRow = document.querySelector(`#users table tbody tr td:first-child`);
+            if (!userRow || userRow.textContent !== username) return;
+
+            const row = userRow.parentElement;
+            if (row) {
+                row.remove();
+            }
+        }
+
+        // טיפול בטפסי הגדרות
+        document.addEventListener('DOMContentLoaded', function() {
+            // עדכון רשימת פעילויות בטעינה
+            updateActivitiesList();
+
+            // הוספת מאזינים לטפסי הגדרות
+            const generalSettingsForm = document.getElementById('generalSettingsForm');
+            if (generalSettingsForm) {
+                generalSettingsForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    alert('ההגדרות נשמרו בהצלחה');
+                });
+            }
+
+            const notificationSettingsForm = document.getElementById('notificationSettingsForm');
+            if (notificationSettingsForm) {
+                notificationSettingsForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    alert('הגדרות ההתראות נשמרו בהצלחה');
+                });
+            }
+
+            // הוספת מאזינים לכפתורי דוחות
+            document.querySelectorAll('[data-report-type]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const reportType = this.getAttribute('data-report-type');
+                    generateReport(reportType);
+                });
+            });
+        });
+
+        // פונקציה להעברת הנתונים לנדרים פלוס
+        function submitToNedarim(event) {
+            event.preventDefault();
+            
+            // בסיס URL של נדרים פלוס
+            const baseUrl = 'https://www.matara.pro/nedarimplus/online/';
+            
+            // פרמטרים בסיסיים
+            const params = {
+                mosad: '4001143',
+                currency: document.getElementById('currency').value,
+                amount: document.getElementById('sum').value,
+            };
+
+            // פרטי התורם
+            if (document.getElementById('fname').value) {
+                params.j1 = document.getElementById('fname').value;
+            }
+            if (document.getElementById('lname').value) {
+                params.j2 = document.getElementById('lname').value;
+            }
+            if (document.getElementById('phone').value) {
+                params.j4 = document.getElementById('phone').value;
+            }
+            if (document.getElementById('email').value) {
+                params.j5 = document.getElementById('email').value;
+            }
+
+            // כתובת
+            const street = document.getElementById('street').value;
+            const city = document.getElementById('city').value;
+            if (street) params.j6 = street;
+            if (city) params.j7 = city;
+
+            // הקדשה
+            const dedication = document.getElementById('dedication').value;
+            if (dedication) {
+                params.dedication = dedication;
+            }
+
+            // הוראת קבע
+            const paymentType = document.getElementById('paymentType').value;
+            if (paymentType === '2' || paymentType === '3') {
+                params.kavua = '1';
+                params.kavua_type = document.getElementById('hkType').value;
+                params.kavua_day = document.getElementById('hkDay').value;
+            }
+
+            // תשלומים
+            const payments = document.getElementById('payments').value;
+            if (payments && payments > 1) {
+                params.tashlumim = payments;
+            }
+
+            // בניית ה-URL
+            const queryString = Object.entries(params)
+                .map(([key, value]) => {
+                    // קידוד מיוחד לטקסט בעברית
+                    const encodedValue = /[\u0590-\u05FF]/.test(value) ? 
+                        encodeURIComponent(value) : 
+                        encodeURIComponent(value);
+                    return `${key}=${encodedValue}`;
+                })
+                .join('&');
+
+            const finalUrl = `${baseUrl}?${queryString}`;
+            console.log('Final URL:', decodeURIComponent(finalUrl));
+
+            // פתיחת החלון של נדרים פלוס
+            window.open(finalUrl, '_blank');
+
+            // שמירת הנתונים במערכת
+            const donationData = {
+                date: new Date().toISOString(),
+                amount: params.amount,
+                donor: `${document.getElementById('fname').value} ${document.getElementById('lname').value}`,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                dedication: dedication,
+                paymentType: paymentType,
+                status: 'pending'
+            };
+            
+            if (!window.donations) window.donations = [];
+            window.donations.push(donationData);
+        }
+    </script>
+</body>
+</html>
